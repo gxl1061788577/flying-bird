@@ -4,20 +4,17 @@
 flying bird canvas小游戏
 
 #### 软件架构
-软件架构说明
+js + canvas
 
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+无需安装
 
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+canvas练手,参考他人设计理念
+空格 = 芜湖
 
 #### 参与贡献
 
