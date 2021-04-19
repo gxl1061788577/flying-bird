@@ -122,7 +122,7 @@
     function drawScore(){
         let num = score.toString();
         for(let i=0;i<num.length;i++){
-            ctx.drawImage(eval(`imgs.scroe${num[i]}`),canvas.width/2-(num.length-i)*28,40);
+            ctx.drawImage(eval(`imgs.scroe${num[i]}`),canvas.width/2-(num.length-i)*14,40);
         }
     }
     //游戏中 页面60帧加载
