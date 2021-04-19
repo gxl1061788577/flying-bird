@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flying bird</title>
+    <style>
+        body{
+            height: 500px;
+        }
+        canvas{
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="343" height="480"></canvas>
+</body>
+<script src="./js/imgs.js"></script>
+<script src="./js/pipe.js"></script>
+<script src="./js/bird.js"></script>
+<script>
+    var canvas = document.querySelector('#canvas');
+    var ctx = canvas.getContext('2d');
+    var gameStarTimer = '';
+    var shack = false;
+    var gameRuningTimer = '';
+    var pips = [];
+    var score = 0;
+    //初始化: 图片加载
+    function init(){
+        imgs.loadimgs(beforeStart);
+    }
+    //清除画布
+    function clearCtx(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    //背景加载
+    function drawBg(){
+        ctx.drawImage(imgs.bg,0,0,343,480);
+    }
+    //草坪加载
+    function drawGrass(i){
+        ctx.drawImage(imgs.grass,(i%100)*3,423);
+        ctx.drawImage(imgs.grass,(i%100)*3-334,423);
+    }
+    //开始点击事件
+    function startClickEvent(){
+        canvas.addEventListener('click',(e)=>{
+            console.log(bird.alive)
+            if(e.offsetX>130&&e.offsetX<215&&e.offsetY>300&&e.offsetY<329&&(!bird.alive)){
+                reset();
+                start();
+            }
+        })
+        document.addEventListener('keydown',(e)=>{
+            if(e.code=='Space'&&bird.alive){
+                bird.speed = -10;
+            }
+        })
+    }
+    //开始背景加载
+    function beforeStart(){
+        startClickEvent();
+        let i =0;
+        gameStarTimer = setInterval(()=>{
+            clearCtx();
+            drawBg();
+            drawGrass(i);
+            if(shack){
+                ctx.drawImage(imgs.title,53,53);
+                ctx.drawImage(imgs.bird0,243,73);
+            }else{
+                ctx.drawImage(imgs.title,50,50);
+                ctx.drawImage(imgs.bird1,240,70);
+            }
+            ctx.drawImage(imgs.startBtn,130,300);
+            if(i%7==0){
+                shack = !shack;
+            }
+            i++;
+        },25)
+    }
+    //管道创建
+    function createPipe(){
+        let pipeObj = new pipe(imgs.up_pipe,imgs.up_mod,imgs.down_pipe,imgs.down_mod,pips[pips.length]);
+        if(pips.length<=3){
+            pips.push(pipeObj);
+        }else{
+            pips.unshift();
+            pips.push(pipeObj);
+        }
+    }
+    //状态重置
+    function reset(){
+        pips = [];
+        bird.posY = 200;
+        bird.speed = 0;
+        score = 0;
+        bird.alive = true;
+    }
+    //判断碰撞
+    function isHit(item){
+        if(!(bird.posX+imgs.bird0.width < item.PosX || bird.posX > item.PosX+imgs.up_pipe.width)){
+            if(bird.posY <= item.upH*6 + imgs.up_pipe.height || bird.posY+imgs.bird0.height >= item.downH*6){
+                bird.alive = false;
+            }
+        }
+    }
+    //判断通过管道
+    function isOver(item){
+        if(bird.posX > item.PosX+imgs.up_pipe.width&&(!item.over)){
+            item.over = true;
+            score ++;
+        }
+    }
+    //绘制计数
+    function drawScore(){
+        let num = score.toString();
+        for(let i=0;i<num.length;i++){
+            ctx.drawImage(eval(`imgs.scroe${num[i]}`),canvas.width/2-(num.length-i)*28,40);
+        }
+    }
+    //游戏中 页面60帧加载
+    function start(){
+        gameStarTimer&&clearInterval(gameStarTimer);
+        reset();
+        let i = 0;
+        gameRuningTimer = setInterval(()=>{
+            clearCtx();
+            drawBg();
+            drawGrass(i);
+            if(i%60==0){
+                createPipe();
+            }
+            pips.forEach(item=>{
+                item.move(ctx);
+                isHit(item);
+                isOver(item);
+            })
+            drawScore();
+            bird.fly(i);
+            if(!bird.alive){
+                end();
+            }
+            i++;
+        },20)
+    }
+    //游戏结束 画面加载
+    function end(){
+        gameRuningTimer&&clearInterval(gameRuningTimer);
+        ctx.drawImage(imgs.message,40,100);
+        ctx.drawImage(imgs.startBtn,130,300);
+    }
+    //初始化
+    init();
+</script>
+</html>
